@@ -40,7 +40,12 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Pokemon p = lista.get(position);
 
-        holder.txt.setText(p.name + " ❤️" + p.hp + " ⚔️" + p.attack);
+        holder.txt.setText(
+                p.name +
+                        " ❤️" + p.hp +
+                        " ⚔️" + p.attack +
+                        " 🔥" + (p.hp + p.attack)
+        );
 
         // Pintar selección
         if (seleccionados.contains(p)) {

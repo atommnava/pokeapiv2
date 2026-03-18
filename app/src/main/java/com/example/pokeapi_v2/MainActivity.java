@@ -146,12 +146,25 @@ public class MainActivity extends AppCompatActivity {
 
                 String miId = socket.id();
 
+                boolean soyJugador1 = miId.equals(winner) ? (wins1 > wins2) : (wins1 < wins2);
+
+                int misWins;
+                int susWins;
+
+                if (soyJugador1) {
+                    misWins = wins1;
+                    susWins = wins2;
+                } else {
+                    misWins = wins2;
+                    susWins = wins1;
+                }
+
                 String mensaje;
 
                 if (winner.equals(miId)) {
-                    mensaje = "🏆 ¡GANASTE!\n" + wins1 + " vs " + wins2;
+                    mensaje = "🏆 ¡GANASTE!\n" + misWins + " vs " + susWins;
                 } else {
-                    mensaje = "💀 Perdiste\n" + wins1 + " vs " + wins2;
+                    mensaje = "💀 Perdiste\n" + misWins + " vs " + susWins;
                 }
 
                 status.setText(mensaje);
