@@ -1,9 +1,12 @@
 package com.example.pokeapi_v2;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -19,9 +22,13 @@ public class MainActivity extends AppCompatActivity {
     private Socket socket;
 
     private TextView status;
+    private RecyclerView recycler;
+    private Button btnEnviar;
 
     private ArrayList<Pokemon> listaPokemons = new ArrayList<>();
     private ArrayList<Pokemon> seleccionados = new ArrayList<>();
+
+    private PokemonAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,17 +36,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         status = findViewById(R.id.status);
+        recycler = findViewById(R.id.recycler);
+        btnEnviar = findViewById(R.id.btnEnviar);
 
+        // RecyclerView
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new PokemonAdapter(listaPokemons, seleccionados);
+        recycler.setAdapter(adapter);
+
+        // Socket
         socket = SocketManager.getSocket();
 
-        // 🔥 EVENTO: cuando conecta
         socket.on(Socket.EVENT_CONNECT, args -> {
             runOnUiThread(() -> {
                 status.setText("✅ Conectado al servidor");
             });
         });
 
-        // 🔥 EVENTO: error de conexión (MUY IMPORTANTE)
         socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
             runOnUiThread(() -> {
                 status.setText("❌ Error al conectar");
@@ -52,15 +65,26 @@ public class MainActivity extends AppCompatActivity {
 
         socket.on("asignar_pokemones", onPokemonsReceived);
         socket.on("resultado_batalla", onBattleResult);
+
+        // Botón enviar equipo
+        btnEnviar.setOnClickListener(v -> {
+            if (seleccionados.size() == 3) {
+                enviarEquipo();
+                status.setText("Enviando equipo...");
+            } else {
+                status.setText("Selecciona 3 Pokémon");
+            }
+        });
     }
 
-    // 🔥 Recibir pokemones del servidor
+    // 🔥 Recibir Pokémon del servidor
     private Emitter.Listener onPokemonsReceived = args -> {
         runOnUiThread(() -> {
             try {
                 JSONArray array = (JSONArray) args[0];
 
                 listaPokemons.clear();
+                seleccionados.clear();
 
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject obj = array.getJSONObject(i);
@@ -74,29 +98,16 @@ public class MainActivity extends AppCompatActivity {
                     listaPokemons.add(p);
                 }
 
-                status.setText("Pokémon recibidos. Seleccionando equipo...");
+                adapter.notifyDataSetChanged();
+                status.setText("Elige 3 Pokémon");
 
                 Log.d("POKEMONS", listaPokemons.toString());
-
-                // 👉 Selección automática de 3 (para pruebas)
-                seleccionar3Pokemons();
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     };
-
-    // 🎮 Seleccionar 3 pokemones automáticamente
-    private void seleccionar3Pokemons() {
-        seleccionados.clear();
-
-        for (int i = 0; i < 3 && i < listaPokemons.size(); i++) {
-            seleccionados.add(listaPokemons.get(i));
-        }
-
-        enviarEquipo();
-    }
 
     // 📤 Enviar equipo al servidor
     private void enviarEquipo() {
@@ -116,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
             socket.emit("elegir_equipo", team);
 
-            status.setText("Equipo enviado. Esperando resultado...");
-
             Log.d("TEAM", team.toString());
 
         } catch (Exception e) {
@@ -125,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 🏆 Recibir resultado de batalla
+    // 🏆 Resultado de batalla
     private Emitter.Listener onBattleResult = args -> {
         runOnUiThread(() -> {
             try {
