@@ -146,30 +146,51 @@ public class MainActivity extends AppCompatActivity {
 
                 String miId = socket.id();
 
-                boolean soyJugador1 = miId.equals(winner) ? (wins1 > wins2) : (wins1 < wins2);
-
                 int misWins;
                 int susWins;
 
-                if (soyJugador1) {
-                    misWins = wins1;
-                    susWins = wins2;
+                // Determinar si soy jugador 1 o 2 correctamente
+                if (winner.equals(miId)) {
+                    // Si gané, mis wins son el mayor
+                    if (wins1 > wins2) {
+                        misWins = wins1;
+                        susWins = wins2;
+                    } else {
+                        misWins = wins2;
+                        susWins = wins1;
+                    }
                 } else {
-                    misWins = wins2;
-                    susWins = wins1;
+                    // Si perdí, mis wins son el menor
+                    if (wins1 < wins2) {
+                        misWins = wins1;
+                        susWins = wins2;
+                    } else {
+                        misWins = wins2;
+                        susWins = wins1;
+                    }
                 }
 
-                String mensaje;
+                String mensajeFinal;
 
                 if (winner.equals(miId)) {
-                    mensaje = "🏆 ¡GANASTE!\n" + misWins + " vs " + susWins;
+                    mensajeFinal =
+                            "⚔️ RESULTADO FINAL\n\n" +
+                                    "Rondas ganadas:\n" +
+                                    "Tú: " + misWins + "\n" +
+                                    "Rival: " + susWins + "\n\n" +
+                                    "🏆 GANADOR: TÚ";
                 } else {
-                    mensaje = "💀 Perdiste\n" + misWins + " vs " + susWins;
+                    mensajeFinal =
+                            "⚔️ RESULTADO FINAL\n\n" +
+                                    "Rondas ganadas:\n" +
+                                    "Tú: " + misWins + "\n" +
+                                    "Rival: " + susWins + "\n\n" +
+                                    "💀 GANADOR: RIVAL";
                 }
 
-                status.setText(mensaje);
+                status.setText(mensajeFinal);
 
-                Log.d("RESULTADO", result.toString());
+                Log.d("¡RESULTADO FINAL!", mensajeFinal);
 
             } catch (Exception e) {
                 e.printStackTrace();
