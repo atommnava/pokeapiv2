@@ -18,17 +18,14 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 public class MainActivity extends AppCompatActivity {
-
     private Socket socket;
-
     private TextView status;
     private RecyclerView recycler;
     private Button btnEnviar;
-
     private ArrayList<Pokemon> listaPokemons = new ArrayList<>();
     private ArrayList<Pokemon> seleccionados = new ArrayList<>();
-
     private PokemonAdapter adapter;
+    private int playerIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
         status.setText("Conectando al servidor...");
 
+        socket.on("player_index", args -> {
+            playerIndex = (int) args[0];
+            Log.d("PLAYER", "Soy jugador: " + playerIndex);
+        });
         socket.on("asignar_pokemones", onPokemonsReceived);
         socket.on("resultado_batalla", onBattleResult);
 
@@ -149,48 +150,34 @@ public class MainActivity extends AppCompatActivity {
                 int misWins;
                 int susWins;
 
-                // Determinar si soy jugador 1 o 2 correctamente
-                if (winner.equals(miId)) {
-                    // Si gané, mis wins son el mayor
-                    if (wins1 > wins2) {
-                        misWins = wins1;
-                        susWins = wins2;
-                    } else {
-                        misWins = wins2;
-                        susWins = wins1;
-                    }
+                // 🔥 AQUÍ ESTÁ LA CORRECCIÓN REAL
+                if (playerIndex == 0) {
+                    misWins = wins1;
+                    susWins = wins2;
                 } else {
-                    // Si perdí, mis wins son el menor
-                    if (wins1 < wins2) {
-                        misWins = wins1;
-                        susWins = wins2;
-                    } else {
-                        misWins = wins2;
-                        susWins = wins1;
-                    }
+                    misWins = wins2;
+                    susWins = wins1;
                 }
 
                 String mensajeFinal;
 
                 if (winner.equals(miId)) {
                     mensajeFinal =
-                            "⚔️ RESULTADO FINAL\n\n" +
-                                    "Rondas ganadas:\n" +
+                            "⚔️ RESULTADO FINAL (MEJOR DE 3)\n\n" +
                                     "Tú: " + misWins + "\n" +
                                     "Rival: " + susWins + "\n\n" +
-                                    "🏆 GANADOR: TÚ";
+                                    "🏆 GANASTE";
                 } else {
                     mensajeFinal =
-                            "⚔️ RESULTADO FINAL\n\n" +
-                                    "Rondas ganadas:\n" +
+                            "⚔️ RESULTADO FINAL (MEJOR DE 3)\n\n" +
                                     "Tú: " + misWins + "\n" +
                                     "Rival: " + susWins + "\n\n" +
-                                    "💀 GANADOR: RIVAL";
+                                    "💀 PERDISTE";
                 }
 
                 status.setText(mensajeFinal);
 
-                Log.d("¡RESULTADO FINAL!", mensajeFinal);
+                Log.d("RESULTADO", result.toString());
 
             } catch (Exception e) {
                 e.printStackTrace();
