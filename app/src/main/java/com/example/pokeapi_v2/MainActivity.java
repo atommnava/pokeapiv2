@@ -158,9 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     misWins = wins2;
                     susWins = wins1;
                 }
-
                 String mensajeFinal;
-
                 if (winner.equals(miId)) {
                     mensajeFinal =
                             "⚔️ RESULTADO FINAL (MEJOR DE 3)\n\n" +
@@ -174,17 +172,13 @@ public class MainActivity extends AppCompatActivity {
                                     "Rival: " + susWins + "\n\n" +
                                     "💀 PERDISTE";
                 }
-
                 status.setText(mensajeFinal);
-
                 Log.d("RESULTADO", result.toString());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     };
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
