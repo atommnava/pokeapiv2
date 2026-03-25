@@ -44,4 +44,5 @@ dependencies {
     // DEPENDENCIAS NECESARIAS
     implementation("io.socket:socket.io-client:2.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    
 }
